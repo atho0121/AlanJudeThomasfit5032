@@ -22,3 +22,10 @@ exports.capitaliseBook = onDocumentCreated("books/{bookId}", async (event) => {
   }
   await event.data.ref.update(updated);
 });
+
+exports.getAllBooks = onRequest((req, res) => {
+  cors(req, res, async () => {
+    const snap = await admin.firestore().collection("books").get();
+    res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
+});
