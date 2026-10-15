@@ -844,3 +844,48 @@ textarea:focus {
   }
 
 }
+
+/* ===== BR C additions ===== */
+
+.nav-button-plain { border: 0; background: transparent; color: #405247 !important; padding: 0; }
+.nav-button-plain:hover { color: #287a45 !important; }
+.nav-user { font-weight: 600; color: #405247; }
+
+.primary-button:disabled { background: #9db8a4; cursor: not-allowed; }
+
+.spots-left { margin-top: 8px; font-size: 0.8rem; color: #708072; }
+.spots-left .full { color: #b42318; font-weight: 600; }
+.status.unknown { background: #f1f1f1; color: #6b7280; }
+
+.project-rating { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5ebe5; display: grid; gap: 10px; }
+.star-rating { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; }
+.star { background: transparent; border: 0; font-size: 1.3rem; color: #d8e0d8; padding: 0; line-height: 1; }
+.star.filled { color: #f5a623; }
+.star-rating-interactive .star { cursor: pointer; }
+.star-rating-interactive .star:disabled { cursor: default; }
+.rating-summary { margin-left: 8px; font-size: 0.85rem; color: #708072; }
+.rate-this { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rate-label { font-size: 0.85rem; font-weight: 600; color: #405247; }
+.rate-login-hint { font-size: 0.85rem; color: #708072; }
+.rate-login-hint a { color: #287a45; font-weight: 700; }
+
+.error-message-box { padding: 12px 14px; border-radius: 8px; background: #fdecea; color: #b42318; font-weight: 600; }
+
+.auth-layout { display: flex; justify-content: center; }
+.auth-form { background: white; border: 1px solid #e1e8e1; border-radius: 14px; padding: 30px; display: grid; gap: 20px; width: 100%; max-width: 420px; }
+.auth-switch, .auth-hint { text-align: center; color: #59675d; }
+.auth-switch a { color: #287a45; font-weight: 700; }
+.auth-hint { font-size: 0.8rem; padding-top: 10px; border-top: 1px dashed #e1e8e1; }
+
+.admin-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; background: white; border-radius: 10px; overflow: hidden; }
+.admin-table th, .admin-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #e5ebe5; }
+.admin-table th { background: #eef5ec; font-size: 0.8rem; text-transform: uppercase; color: #708072; }
+
+@media (max-width: 768px) {
+  .nav-button-plain { padding: 12px; text-align: left; }
+  .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media (max-width: 576px) {
+  .auth-form { padding: 20px; }
+}
