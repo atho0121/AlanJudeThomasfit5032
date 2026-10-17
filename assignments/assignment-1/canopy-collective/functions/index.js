@@ -79,3 +79,5 @@ export const sendEmail = onCall({ secrets: [SENDGRID_API_KEY] }, async request =
 
   return { sent: list.length }
 })
+
+export { api } from './api.js'
