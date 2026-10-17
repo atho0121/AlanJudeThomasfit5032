@@ -73,6 +73,7 @@ async function handleLogout() {
         >
           Projects
         </RouterLink>
+        <RouterLink to="/map" class="nav-link" @click="closeMenu">Map</RouterLink>
 
         <RouterLink
           to="/contact"

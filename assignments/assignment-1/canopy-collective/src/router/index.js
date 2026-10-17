@@ -8,6 +8,7 @@ import ContactView from '../views/ContactView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import AdminView from '../views/AdminView.vue'
+import MapView from '../views/MapView.vue'
 
 const routes = [
   {
@@ -25,6 +26,7 @@ const routes = [
     name: 'projects',
     component: ProjectsView
   },
+  { path: '/map', name: 'map', component: MapView },
   {
     path: '/contact',
     name: 'contact',
