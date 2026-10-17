@@ -8,6 +8,7 @@ import { projects } from '../data/projects'
 import { events } from '../data/events'
 import { signups } from '../data/signups'
 import DataTable from '../components/DataTable.vue'
+import ExportButtons from '../components/ExportButtons.vue'
 
 const { currentUser } = useAuth()
 const { getAverage, getCount } = useRatings()
@@ -106,16 +107,52 @@ const ratingRows = computed(() =>
         :rows="users"
         row-label="name"
         selectable
-      />
+      >
+        <template #actions="{ rows }">
+          <ExportButtons
+            :columns="userColumns"
+            :rows="rows"
+            filename="canopy-users"
+            title="Registered users"
+          />
+        </template>
+      </DataTable>
 
       <h2>Events</h2>
-      <DataTable caption="Events" :columns="eventColumns" :rows="events" />
+      <DataTable caption="Events" :columns="eventColumns" :rows="events">
+        <template #actions="{ rows }">
+          <ExportButtons
+            :columns="eventColumns"
+            :rows="rows"
+            filename="canopy-events"
+            title="Events"
+          />
+        </template>
+      </DataTable>
 
       <h2>Event Sign-ups (sample data)</h2>
-      <DataTable caption="Event sign-ups" :columns="signupColumns" :rows="signups" />
+      <DataTable caption="Event sign-ups" :columns="signupColumns" :rows="signups">
+        <template #actions="{ rows }">
+          <ExportButtons
+            :columns="signupColumns"
+            :rows="rows"
+            filename="canopy-signups"
+            title="Event sign-ups"
+          />
+        </template>
+      </DataTable>
 
       <h2>Project Ratings Summary</h2>
-      <DataTable caption="Project ratings" :columns="ratingColumns" :rows="ratingRows" />
+      <DataTable caption="Project ratings" :columns="ratingColumns" :rows="ratingRows">
+        <template #actions="{ rows }">
+          <ExportButtons
+            :columns="ratingColumns"
+            :rows="rows"
+            filename="canopy-ratings"
+            title="Project ratings"
+          />
+        </template>
+      </DataTable>
     </div>
   </section>
 </template>
