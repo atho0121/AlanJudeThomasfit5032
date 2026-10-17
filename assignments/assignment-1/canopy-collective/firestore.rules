@@ -8,13 +8,35 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
+      // A user reads their own profile; admins read everyone (admin tables).
       allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
+
+      // Self-registration: your own doc only, and the role must be 'member'.
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.role == 'member';
+
+      // Users may edit their profile but never their role. Only admins change roles.
       allow update: if request.auth != null
                     && ((request.auth.uid == uid && request.resource.data.role == resource.data.role)
                         || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /ratings/{ratingId} {
+      // Public read: averages are shown to logged-out visitors.
+      allow read: if true;
+
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['projectId', 'userId', 'value', 'updatedAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.projectId is int
+        && ratingId == string(request.resource.data.projectId) + '_' + request.auth.uid
+        && request.resource.data.value is int
+        && request.resource.data.value >= 1
+        && request.resource.data.value <= 5
+        && request.resource.data.updatedAt == request.time;
+
       allow delete: if isAdmin();
     }
   }

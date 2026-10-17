@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth } from '../stores/auth'
 import { useRatings } from '../stores/ratings'
 import StarRating from './StarRating.vue'
@@ -30,12 +30,15 @@ const average = computed(() => getAverage(props.project.id))
 const count = computed(() => getCount(props.project.id))
 const userRating = computed(() => getUserRating(props.project.id))
 
-function handleRate(value) {
+// Shown next to the stars so a rejected write is never silent.
+const ratingError = ref('')
+
+async function handleRate(value) {
+  ratingError.value = ''
   try {
-    submitRating(props.project.id, value)
+    await submitRating(props.project.id, value)
   } catch (error) {
-    
-    console.error(error.message)
+    ratingError.value = error.message
   }
 }
 </script>
@@ -98,6 +101,10 @@ function handleRate(value) {
       <p v-else class="rate-login-hint">
         <RouterLink to="/login">Log in</RouterLink> to rate this project.
       </p>
+
+      <div v-if="ratingError" class="error-message-box" role="alert">
+        {{ ratingError }}
+      </div>
 
     </div>
 
