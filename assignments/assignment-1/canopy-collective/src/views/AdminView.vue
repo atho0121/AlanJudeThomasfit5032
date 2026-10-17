@@ -9,6 +9,11 @@ import { events } from '../data/events'
 import { signups } from '../data/signups'
 import DataTable from '../components/DataTable.vue'
 import ExportButtons from '../components/ExportButtons.vue'
+import BulkEmail from '../components/BulkEmail.vue'
+
+const selectedRecipients = computed(() =>
+  users.value.filter(u => selectedUserIds.value.includes(u.id))
+)
 
 const { currentUser } = useAuth()
 const { getAverage, getCount } = useRatings()
@@ -117,11 +122,16 @@ const ratingRows = computed(() =>
           />
         </template>
       </DataTable>
+      <BulkEmail
+        :recipients="selectedRecipients"
+        :events="events"
+        :event-columns="eventColumns"
+      />
 
       <h2>Events</h2>
       <DataTable caption="Events" :columns="eventColumns" :rows="events">
         <template #actions="{ rows }">
-          <ExportButtons
+          <ExportButtonsn
             :columns="eventColumns"
             :rows="rows"
             filename="canopy-events"
