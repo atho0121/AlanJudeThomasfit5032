@@ -42,3 +42,4 @@ __screenshots__/
 # Firebase CLI cache
 .firebase/
 functions/.env
+functions/data/

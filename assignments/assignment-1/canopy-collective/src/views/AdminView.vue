@@ -10,6 +10,18 @@ import { signups } from '../data/signups'
 import DataTable from '../components/DataTable.vue'
 import ExportButtons from '../components/ExportButtons.vue'
 import BulkEmail from '../components/BulkEmail.vue'
+import RatingsChart from '../components/RatingsChart.vue'
+
+const roleCounts = computed(() =>
+  users.value.reduce((acc, u) => {
+    acc[u.role] = (acc[u.role] || 0) + 1
+    return acc
+  }, {})
+)
+
+const totalRatings = computed(() =>
+  projects.reduce((sum, p) => sum + getCount(p.id), 0)
+)
 
 const selectedRecipients = computed(() =>
   users.value.filter(u => selectedUserIds.value.includes(u.id))
@@ -98,6 +110,15 @@ const ratingRows = computed(() =>
       <p>Signed in as {{ currentUser?.name }} ({{ currentUser?.role }})</p>
     </div>
   </section>
+  <h2>Overview</h2>
+  <ul class="stat-grid">
+    <li><strong>{{ users.length }}</strong><span>Registered users</span></li>
+    <li><strong>{{ roleCounts.admin || 0 }}</strong><span>Admins</span></li>
+    <li><strong>{{ roleCounts.member || 0 }}</strong><span>Members</span></li>
+    <li><strong>{{ events.length }}</strong><span>Events</span></li>
+    <li><strong>{{ totalRatings }}</strong><span>Project ratings</span></li>
+  </ul>
+  <RatingsChart />
 
   <section class="section">
     <div class="container">
@@ -166,3 +187,11 @@ const ratingRows = computed(() =>
     </div>
   </section>
 </template>
+
+
+<style scoped>
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0 0 32px; }
+.stat-grid li { background: white; border-radius: 10px; padding: 16px; display: flex; flex-direction: column; }
+.stat-grid strong { font-size: 2rem; color: #1d5c33; }
+.stat-grid span { color: #4d5d4f; }
+</style>
