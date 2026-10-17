@@ -883,7 +883,7 @@ textarea:focus {
 
 @media (max-width: 768px) {
   .nav-button-plain { padding: 12px; text-align: left; }
-  .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
+  
 }
 
 @media (max-width: 576px) {
