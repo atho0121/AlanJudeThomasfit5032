@@ -79,7 +79,7 @@ async function submitForm() {
       password: form.password
     })
 
-    router.push('/login')
+    router.push('/')
   } catch (error) {
     
     serverError.value = error.message

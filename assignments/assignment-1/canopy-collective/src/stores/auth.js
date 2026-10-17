@@ -1,124 +1,136 @@
 import { reactive, computed } from 'vue'
-
-const STORAGE_KEY_USERS = 'canopy_users'
-const STORAGE_KEY_SESSION = 'canopy_session'
-
-
-async function hashPassword(password) {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('')
-}
-
-function loadUsers() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_USERS)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
-  }
-}
-
-function saveUsers(users) {
-  localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users))
-}
-
-function loadSession() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_SESSION)
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile
+} from 'firebase/auth'
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { auth, db } from '../firebase'
 
 const state = reactive({
-  users: loadUsers(),
-  currentUser: loadSession()
+  currentUser: null // { id, name, email, role }
 })
 
+// While register() writes the users/{uid} doc, the listener must not race it.
+let registering = false
 
-async function seedAdmin() {
-  if (state.users.length === 0) {
-    const passwordHash = await hashPassword('Admin123!')
-    state.users.push({
-      id: 1,
-      name: 'Site Admin',
-      email: 'admin@canopycollective.org',
-      passwordHash,
-      role: 'admin'
-    })
-    saveUsers(state.users)
+async function loadProfile(firebaseUser) {
+  const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
+  const data = snap.exists() ? snap.data() : {}
+  return {
+    id: firebaseUser.uid,
+    name: data.name || firebaseUser.displayName || '',
+    email: firebaseUser.email,
+    // A missing profile falls back to the lowest privilege, never admin.
+    role: data.role || 'member'
   }
 }
-seedAdmin()
+
+// Resolves once Firebase has restored (or not) the session on page load.
+// The router guard awaits this so a refresh on /admin doesn't bounce to login.
+export const authReady = new Promise(resolve => {
+  onAuthStateChanged(auth, async firebaseUser => {
+    if (registering) return resolve()
+    try {
+      state.currentUser = firebaseUser ? await loadProfile(firebaseUser) : null
+    } catch (err) {
+      console.error('Failed to load user profile', err)
+      state.currentUser = null
+    }
+    resolve()
+  })
+})
+
+function friendlyError(err) {
+  switch (err.code) {
+    case 'auth/email-already-in-use':
+      return new Error('An account with that email already exists.')
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+    case 'auth/invalid-email':
+      // One message for all of these, so login doesn't reveal which emails exist.
+      return new Error('Invalid email or password.')
+    case 'auth/weak-password':
+      return new Error('Password is too weak (minimum 6 characters).')
+    case 'auth/too-many-requests':
+      return new Error('Too many attempts. Please try again later.')
+    default:
+      // Don't leak internals (e.g. "Missing or insufficient permissions") to the UI.
+      console.error('Auth error:', err)
+      return new Error('Something went wrong. Please try again.')
+  }
+}
 
 export function useAuth() {
   const isLoggedIn = computed(() => state.currentUser !== null)
   const isAdmin = computed(() => state.currentUser?.role === 'admin')
 
   async function register({ name, email, password }) {
-    const normalizedEmail = email.trim().toLowerCase()
+    registering = true
+    let cred = null
+    try {
+      cred = await createUserWithEmailAndPassword(
+        auth,
+        email.trim().toLowerCase(),
+        password
+      )
+      await updateProfile(cred.user, { displayName: name.trim() })
 
-    const alreadyExists = state.users.some(
-      user => user.email === normalizedEmail
-    )
+      // Role is always 'member' here. The Firestore rules enforce this.
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        name: name.trim(),
+        email: cred.user.email,
+        role: 'member',
+        createdAt: serverTimestamp()
+      })
 
-    if (alreadyExists) {
-      throw new Error('An account with that email already exists.')
+      state.currentUser = {
+        id: cred.user.uid,
+        name: name.trim(),
+        email: cred.user.email,
+        role: 'member'
+      }
+      return state.currentUser
+    } catch (err) {
+      // If the profile write failed, remove the half-created Auth account so
+      // the person can retry instead of being stuck with "email already in use".
+      if (cred?.user) {
+        await cred.user.delete().catch(() => {})
+      }
+      state.currentUser = null
+      throw friendlyError(err)
+    } finally {
+      registering = false
     }
-
-    const passwordHash = await hashPassword(password)
-
-    const newUser = {
-      id: Date.now(),
-      name: name.trim(),
-      email: normalizedEmail,
-      passwordHash,
-
-      role: 'member'
-    }
-
-    state.users.push(newUser)
-    saveUsers(state.users)
-
-    return newUser
   }
 
   async function login({ email, password }) {
-    const normalizedEmail = email.trim().toLowerCase()
-    const passwordHash = await hashPassword(password)
-
-    const user = state.users.find(
-      candidate =>
-        candidate.email === normalizedEmail &&
-        candidate.passwordHash === passwordHash
-    )
-
-
-    if (!user) {
-      throw new Error('Invalid email or password.')
+    let cred = null
+    try {
+      cred = await signInWithEmailAndPassword(
+        auth,
+        email.trim().toLowerCase(),
+        password
+      )
+      state.currentUser = await loadProfile(cred.user)
+      return state.currentUser
+    } catch (err) {
+      // If sign-in worked but the profile load failed, don't leave Firebase
+      // holding a session while the app shows logged out.
+      if (cred?.user) {
+        await signOut(auth).catch(() => {})
+      }
+      state.currentUser = null
+      throw friendlyError(err)
     }
-
-    const session = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
-
-    state.currentUser = session
-    localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session))
-
-    return session
   }
 
-  function logout() {
+  async function logout() {
+    await signOut(auth)
     state.currentUser = null
-    localStorage.removeItem(STORAGE_KEY_SESSION)
   }
 
   return {

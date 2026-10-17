@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuth } from '../stores/auth'
+import { useAuth, authReady } from '../stores/auth'
 
 import HomeView from '../views/HomeView.vue'
 import EventsView from '../views/EventsView.vue'
@@ -64,7 +64,8 @@ const router = createRouter({
 })
 
 
-router.beforeEach(to => {
+router.beforeEach(async to => {
+  await authReady
   const { isLoggedIn, isAdmin } = useAuth()
 
   if (to.meta.requiresAuth && !isLoggedIn.value) {
