@@ -91,7 +91,7 @@ img {
 
 .brand small {
   display: block;
-  color: #708072;
+  color: #4d5d4f;
 }
 
 .navigation {
@@ -345,7 +345,7 @@ img {
 
 .event-details strong {
   font-size: 0.8rem;
-  color: #708072;
+  color: #4d5d4f;
   text-transform: uppercase;
 }
 
@@ -408,7 +408,7 @@ img {
 }
 
 .project-location {
-  color: #718076;
+  color: #4d5d4f;
   font-size: 0.85rem;
 }
 
@@ -432,7 +432,7 @@ img {
 }
 
 .project-statistics span {
-  color: #708072;
+  color: #4d5d4f;
   font-size: 0.85rem;
 }
 
@@ -491,12 +491,7 @@ textarea {
   color: #24352a;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 3px solid rgba(40, 122, 69, 0.18);
-  border-color: #287a45;
-}
+
 
 .results-summary {
   margin-bottom: 25px;
@@ -596,7 +591,7 @@ textarea:focus {
 
 .character-count {
   text-align: right;
-  color: #718076;
+  color: #4d5d4f;
   font-size: 0.8rem;
 }
 
@@ -853,7 +848,7 @@ textarea:focus {
 
 .primary-button:disabled { background: #9db8a4; cursor: not-allowed; }
 
-.spots-left { margin-top: 8px; font-size: 0.8rem; color: #708072; }
+.spots-left { margin-top: 8px; font-size: 0.8rem; color: #4d5d4f; }
 .spots-left .full { color: #b42318; font-weight: 600; }
 .status.unknown { background: #f1f1f1; color: #6b7280; }
 
@@ -863,10 +858,10 @@ textarea:focus {
 .star.filled { color: #f5a623; }
 .star-rating-interactive .star { cursor: pointer; }
 .star-rating-interactive .star:disabled { cursor: default; }
-.rating-summary { margin-left: 8px; font-size: 0.85rem; color: #708072; }
+.rating-summary { margin-left: 8px; font-size: 0.85rem; color: #4d5d4f; }
 .rate-this { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .rate-label { font-size: 0.85rem; font-weight: 600; color: #405247; }
-.rate-login-hint { font-size: 0.85rem; color: #708072; }
+.rate-login-hint { font-size: 0.85rem; color: #4d5d4f; }
 .rate-login-hint a { color: #287a45; font-weight: 700; }
 
 .error-message-box { padding: 12px 14px; border-radius: 8px; background: #fdecea; color: #b42318; font-weight: 600; }
@@ -879,7 +874,7 @@ textarea:focus {
 
 .admin-table { width: 100%; border-collapse: collapse; margin-bottom: 40px; background: white; border-radius: 10px; overflow: hidden; }
 .admin-table th, .admin-table td { text-align: left; padding: 12px 16px; border-bottom: 1px solid #e5ebe5; }
-.admin-table th { background: #eef5ec; font-size: 0.8rem; text-transform: uppercase; color: #708072; }
+.admin-table th { background: #eef5ec; font-size: 0.8rem; text-transform: uppercase; color: #4d5d4f; }
 
 @media (max-width: 768px) {
   .nav-button-plain { padding: 12px; text-align: left; }
@@ -888,4 +883,36 @@ textarea:focus {
 
 @media (max-width: 576px) {
   .auth-form { padding: 20px; }
+}
+
+
+/* Accessibility (WCAG 2.1 AA) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  background: #1d5c33;
+  color: #fff;
+  padding: 12px 16px;
+}
+.skip-link:focus { left: 16px; top: 16px; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #1a4fd6;
+  outline-offset: 2px;
+}
+main:focus { outline: none; }
+
+/* Form borders need 3:1 contrast */
+input, select, textarea { border-color: #6f8474; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
 }

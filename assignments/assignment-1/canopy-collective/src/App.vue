@@ -6,8 +6,9 @@ import { RouterView } from 'vue-router'
 
 <template>
   <div class="app">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <Navbar />
-    <main class="main-content">
+    <main id="main-content" class="main-content" tabindex="-1">
       <RouterView />
     </main>
     <Footer />

@@ -81,4 +81,11 @@ router.beforeEach(async to => {
   return true
 })
 
+router.afterEach(to => {
+  const name = to.name ? String(to.name) : ''
+  const label = name ? name.charAt(0).toUpperCase() + name.slice(1) : 'Canopy Collective'
+  document.title = `${label} | Canopy Collective`
+})
+
+
 export default router
