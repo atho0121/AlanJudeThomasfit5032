@@ -171,9 +171,7 @@ async function submitForm() {
           <RouterLink to="/register">Register</RouterLink>
         </p>
 
-        <p class="auth-hint">
-          Demo admin login: admin@canopycollective.org / Admin123!
-        </p>
+        
 
       </form>
 
